@@ -1,0 +1,105 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The push() method adds one or more elements to the end of
+  // an array and returns the new length of the array."
+  //
+  // SIGNATURE: 
+  // arr.push(element1[, ...[, elementN]]); 
+  // >> push(array, element1[, ... [, elementN]]); 
+  //
+  // RETURN: 
+  // The new length of the array 
+  //
+  // DETAILS:
+  // >> Appends values to array 
+  // >> Returns new length of array 
+  // >> Works on array-like objects
+  // >> Relies on length property
+  // >> Length defaults to 0, if non-existant or can't be turned into number
+  //
+  //
+
+  function arrayPush(array){
+    array.length = Number(array.length); // convert length to number 
+    array.length = Math.floor(array.length); // just get the integer part
+    if (!array.length || Number.isNaN(array.length) || array.length < 0 ){ // check if array.length doesn't exist, isn't a valid number, or is negative  
+      array.length = 0; // if no valid array.length, set it to 0 
+    }
+
+    if(arguments.length>1){
+      for(var i=1; i<arguments.length; i++){
+        array[array.length]=arguments[i]; 
+        if(!Array.isArray(array)){ // if it's not an array, manually update length property
+          array.length++; 
+        }
+      }
+    } 
+
+    return array.length; 
+  }
+
+  tests({
+    "It should append the value of the 2nd arg to the array.":function(){
+      var testArray = [1]; 
+      arrayPush(testArray,2); 
+      eq(testArray[1],2); 
+    },
+    "It should return the new length of the array, after appending value.":function(){
+      var testArray = [1]; 
+      var pushResult = arrayPush(testArray,2); 
+      eq(pushResult,2);
+    },
+
+    "It should work on array-like objects.":function(){
+      var testArrayLikeObject = {
+        length: 3, 
+        0: 1, 
+        1: 2,
+        2: 3
+      };
+
+      var pushResult = arrayPush(testArrayLikeObject,4); 
+      eq(testArrayLikeObject[3],4); 
+      eq(pushResult,4); 
+    },
+
+    "If the object passed as 1st arg has no length property, one should be made for it.":function(){
+      var testArrayLikeObject = {
+        0: 1, 
+      };
+      arrayPush(testArrayLikeObject,'changed'); 
+      eq(testArrayLikeObject.length,1); 
+    },
+    "If a length property must be made, it should default to 0.":function(){
+      var testArrayLikeObject = {
+      }; 
+      arrayPush(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,0);
+    },
+    "If a length property is negative or not convertable to a number, it should default to 0.":function(){
+      var testArrayLikeObject = {
+        length:-1
+      }; 
+      var testArrayLikeObject2 = {
+        length:'notConvertable'
+      }; 
+      arrayPush(testArrayLikeObject); 
+      arrayPush(testArrayLikeObject2); 
+      eq(testArrayLikeObject.length,testArrayLikeObject2.length,0);
+    }, 
+    "If a length property is a decimal number, it should be converted to the whole number portion.":function(){
+      var testArrayLikeObject = {
+        length:1.9,
+        0:1
+      }; 
+      arrayPush(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,1); 
+    }
+
+  })
+
+</script>

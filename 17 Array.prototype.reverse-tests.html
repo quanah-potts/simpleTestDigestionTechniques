@@ -1,0 +1,80 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The reverse() method reverse an array in place. The first
+  // array element becomes the last, and the last array element becomes the first."
+  //
+  // SIGNATURE: 
+  // arr.reverse(); 
+  // >> reverse(array); 
+  //
+  // RETURN: 
+  // The reversed array 
+  //
+  // DETAILS:
+  // >> Transposes elements of the array object in place 
+  // >> Switches two elements of opposite places 
+  // >> Returns the same array with reversed elements 
+  // >> Works on objects with a length property 
+  //
+  //
+
+  function arrayReverse(array){
+    // var even = (array.length%2===0); 
+
+    var midpoint = Math.floor(array.length/2);
+    var lastIndex = array.length-1; 
+    
+    for(var i=0; i<midpoint; i++){
+      var leftElement = array[i]; 
+      array[i] = array[lastIndex-i];
+      array[lastIndex-i] = leftElement; 
+    }
+
+    return array; 
+  }; 
+
+  tests({
+    "It should swtich the first and last array elements.":function(){
+      var testArray = [1,2,3]; 
+      arrayReverse(testArray); 
+      eq(testArray[0],3); 
+      eq(testArray[2],1); 
+    },
+    "It should switch each element of opposing positions.":function(){
+      var testArray = [1,2,3,4,5]; 
+      arrayReverse(testArray); 
+      eq(testArray[0],5); 
+      eq(testArray[1],4); 
+      eq(testArray[2],3); 
+      eq(testArray[3],2); 
+      eq(testArray[4],1); 
+    },
+    "It should reverse elements 'in-place', using only the original array.":function(){
+      // I don't really know how to test this...
+      // fail(); 
+    },
+    "It should return the same array.":function(){
+      var testArray = [1,2,3]; 
+      var reverseResult = arrayReverse(testArray); 
+      eq(reverseResult,testArray); 
+    },
+    "It should work on objects with a length property.":function(){
+      var testObject = {
+        length:3, 
+        0:1,
+        1:2,
+        2:3
+      }
+      arrayReverse(testObject); 
+      eq(testObject[0],3); 
+      eq(testObject[1],2);
+      eq(testObject[2],1); 
+    },
+
+  })
+
+</script>

@@ -1,0 +1,94 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The includes() method determines whether an array includes a certain value
+  // among its entries, returning true or false as appropriate."
+  //
+  // SIGNATURE: 
+  // arr.includes(valueToFind[, fromIndex])
+  // >> arrayIncludes(array,valueToFind[, fromIndex])
+  //
+  // RETURN: 
+  // Boolean TRUE if valueToFind is found within the array
+  // otherwise FALSE
+  //
+  // DETAILS:
+  // >> fromIndex >> index to start search at. 
+  // >> If fromIndex >= array.length, return FALSE (array is not searched)
+  // >> If fromIndex < 0, fromIndex = array.length + fromIndex (offset from end of array)
+  // >> If fromIndex === 0, search whole array (0 is default)
+  //
+  //
+  //
+
+  function arrayIncludes(array,valueToFind,fromIndex){
+    if(!array || !valueToFind){
+      return false; 
+    }
+    var startingIndex=0; 
+
+    if(arguments.length>2){ //checking if fromIndex is provided 
+      if(fromIndex >= array.length){
+        return false; 
+      }
+      if(fromIndex < 0){
+        startingIndex=array.length+fromIndex; 
+      }
+      else{
+        startingIndex=fromIndex; 
+      }
+    }
+
+    for(var i=startingIndex; i<array.length; i++){ // comparing each array element to valueToFind
+      if(array[i]===valueToFind){
+        return true; 
+      }
+    }
+
+    return false; 
+  };
+
+// overlaps heavily with indexOf, material borrowed from there
+
+  tests({
+
+    "It should return true as soon as an element in the array matches valueToFind.":function(){
+      var testObject = {description: "test object"}; 
+      var testValueToFind = testObject;  
+      var resultOfIncludes = arrayIncludes([{description: "test object"},testObject, testObject], testValueToFind); 
+      eq(resultOfIncludes,true);
+    },
+    "It should return false if no array elements matches valueToFind.":function(){
+      var testObject = {description: "test object"}; 
+      var resultOfIncludes = arrayIncludes([testObject], {description: "test object"}); 
+      eq(resultOfIncludes,false);
+    },
+    "It should return false if no valueToFind or array is provided.":function(){
+      var resultOfIncludes = arrayIncludes([1]); 
+      eq(resultOfIncludes,false);
+      var resultOfIncludes = arrayIncludes(); 
+      eq(resultOfIncludes,false);
+    },
+
+    "It should accept an optional third argument, fromIndex, to designate where the search should start.":function(){
+      var resultOfIncludes = arrayIncludes(["a","b","b"],"a",1);
+      eq(resultOfIncludes,false);
+    },
+    "If fromIndex is not provided, it should start at index 0.":function(){
+      var resultOfIncludes = arrayIncludes(["a","b","b"],"a");
+      eq(resultOfIncludes,true);
+    }, 
+    "If fromIndex is greater than or equal to array.length, it should return false.":function(){
+      var resultOfIncludes = arrayIncludes(["a","b","b"],"a",3);
+      eq(resultOfIncludes,false);
+    },
+    "If fromIndex is negative, it should start at an index equal to array.length + fromIndex.":function(){
+      var resultOfIncludes = arrayIncludes(["a","b","b"],"a",-2); 
+      eq(resultOfIncludes,false);
+    }
+})
+
+</script>

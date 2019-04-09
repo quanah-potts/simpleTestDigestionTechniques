@@ -1,0 +1,111 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The concat() method is used to merge two or more arrays. This method
+  //  does not change the existing arrays, but instead returns a new array." 
+  // 
+  // SIGNATURE: 
+  // var new_array = old_array.concat([value1[, value2[,...[,valueN]]]]); 
+  //     >> valueN may be an array or value, to concat into new array
+  //     >> concat(array,)
+  // 
+  // RETURN: 
+  // A new Array instance comprised of all provided arrays and values 
+  // 
+  // DETAILS: 
+  // >> Creates new array (shallow copy)
+  //    >> New array's elements start with 1st array's original elements
+  //    >> After those, the next argument's elements, if it's an array 
+  //    >> Or the argument itself it is just a value and not an array 
+  //    >> Repeat this for all subsequent arguments... 
+  // 
+  // >> "Does not recurse into nested array arguments" >> keeps 2nd layer structure of any array args
+  // >> Does not alter any arrays provided as args 
+  // >> Does not alter "this"
+  //
+  // >> Object references are copied >> object elements in new array refer to the same objects as old arrays
+  //
+
+  function arrayConcat(){
+
+    var returnArray = [];
+    
+    for(i=0;i<arguments.length;i++){
+      if (Array.isArray(arguments[i])){ // check if each argument is an array 
+        arguments[i].forEach(function(element){ // if so, we'll push each element onto returnArray
+          returnArray.push(element); 
+        })
+      }
+      else { // if it's not an array, we'll just push it directly onto returnArray
+        returnArray.push(arguments[i]);
+      }
+    }
+
+    return returnArray; 
+  }; 
+
+  tests({
+    
+    "It should return a new array, different from the array(s) passed as arguments.":function(){
+      var testArray = [1]; 
+      var newArray = arrayConcat(testArray);
+      eq(newArray !== testArray, true);
+    },
+    "It should return a new array whose first elements are equal to its first argument's elements.":function(){
+      var testArray = [1]; 
+      var newArray = arrayConcat(testArray);
+      eq(newArray[0] === testArray[0], true);
+    },
+
+    "If further arguments are arrays, the args' elements should merge with the new return array.":function(){
+      var testArray1 = [1]; 
+      var testArray2 = [2]; 
+      var newArray = arrayConcat(testArray1, testArray2); 
+      eq(newArray[1] === testArray2[0], true);
+    },
+    "If further arguments are other data types, the args should merge directly with the new return array.":function(){
+      var testArray = [1];
+      var testArg = 2; 
+      var newArray = arrayConcat(testArray, testArg); 
+      eq(newArray[1] === testArg, true);
+    },
+    "The elements in the new array should be in the order of the arguments provided.":function(){
+      var testArray1 = [1]; 
+      var testArray2 = [2]; 
+      var testArg = 3; 
+      var newArray = arrayConcat(testArray1, testArray2, testArg); 
+      eq(newArray[1] === testArray2[0], true);
+      eq(newArray[2] === testArg, true);
+    }, 
+
+    "It should not alter the nested structure of array arguments.":function(){
+      var testArray = [[1]];
+      var newArray = arrayConcat(testArray);
+      eq (newArray[0], testArray[0]); 
+    },
+    "It should not change any original arrays passed as arguments.":function(){
+      var testArray1 = [1,2,3]; 
+      var testArray2 = [4,5,6]; 
+      arrayConcat(testArray1, testArray2); 
+      eq(testArray1[2],3); 
+      eq(testArray2[2],6); 
+      eq(testArray1[3],undefined); 
+      eq(testArray2.length===3, true);
+    }, 
+    "It should copy object references into the new return array.":function(){
+      var testObject = {description:"I am a test object"}; 
+      var testArray = [testObject]; 
+      var newArray = arrayConcat(testArray); 
+      eq(newArray[0].description,"I am a test object"); 
+      eq(newArray[0], testObject);
+    },
+
+  })
+
+  // maybe these tests aren't thorough enough, but, I suppose this is what's 
+  // in the description on MDN page
+
+</script>

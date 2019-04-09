@@ -1,0 +1,143 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  // 
+  // SUMMARY: 
+  // "The find() method returns the value of the first element in the array that 
+  // satisfies the provided testing function. Otherwise undefined is returned.""
+  //
+  // SIGNATURE:
+  // arr.find(callback[, thisArg]) >> find(array,callback[, thisArg]); 
+  //     callback(element[, index, array]); 
+  // 
+  // RETURN: 
+  // Value of 1st element in array where callback returns true. Otherwise undefined. 
+  //
+  // DETAILS: 
+  // >> Runs callback once for every array element (even on unassigned indexes) until either: 
+  // >> a) callback returns true >> return current element. 
+  // >> b) end of array is reached >> return Undefined. 
+  // >> Doesn't mutate array. 
+  // >> Works on the original array, as it was specified at the beginning. 
+  //
+
+  function arrayFind(array,callback,thisArg){
+
+    // For now this is the best way I can see to work on only the original array's values...  
+    // I know array.slice() will only properly clone arrays made of primitive values 
+    // May return to array clone deep dive at a later date 
+    // Or there may be a better solution to find that doesn't involve cloning...
+    var arrayCopy = array.slice(); 
+
+    if (thisArg){
+      callback = callback.bind(thisArg); 
+    }
+    for(var i=0; i<arrayCopy.length; i++){
+      if (callback(arrayCopy[i], i, array)){
+        return arrayCopy[i]; 
+      }
+    }
+    return undefined; 
+  }
+
+  tests({
+
+    "It should pass in the ith element as the first argument to callback.":function(){
+      arrayFind([1],function(element){
+        eq(element,1);
+      })
+    },
+    "It should pass in i as the second argument to callback.":function(){
+      arrayFind([1],function(element,index){
+        eq(index,0);
+      })
+    },
+    "It should pass in the original array as the third argument to callback.":function(){
+      var originalArray = [1]; 
+      arrayFind(originalArray,function(element,index,array){
+        eq(array,originalArray);
+      })
+    },
+
+    "It should run once per array element, and stop if callback returns true.":function(){
+      var numberOfTimesCallbackHasRun = 0; 
+      arrayFind([1,2,3], function(element){
+        numberOfTimesCallbackHasRun++; 
+        return element===4; 
+      }); 
+      eq(numberOfTimesCallbackHasRun,3);
+      
+      numberOfTimesCallbackHasRun = 0; 
+      arrayFind([1,2,3], function(element){
+        numberOfTimesCallbackHasRun++; 
+        return element===2; 
+      }); 
+      eq(numberOfTimesCallbackHasRun,2);
+    },
+    "It should run callback even on unassigned or empty values":function(){
+      var numberOfTimesCallbackHasRun = 0; 
+      arrayFind([1,,3], function(element){
+        numberOfTimesCallbackHasRun++; 
+        return element===4; 
+      }); 
+      eq(numberOfTimesCallbackHasRun,3);
+    },
+
+    "If callback returns true, it should return the current array element.":function(){
+      var findResult = arrayFind([1,2,3],function(element){
+        return element===2; 
+      })
+      eq(findResult,2); 
+    },
+    "If callback never returns true, it should return undefined.":function(){
+      var findResult = arrayFind([1,2,3],function(element){
+        return element===4; 
+      })
+      eq(findResult,undefined); 
+    },
+
+    "It should accept an optional thisArg as 3rd argument.":function(){
+      var optionalThis = {description:"You've found the optional this object"}; 
+      arrayFind([1],function(){
+        eq(this.description,"You've found the optional this object");
+      },optionalThis);
+    },
+    
+    "It shouldn't change the original array.":function(){
+      var originalArray = [1,2]; 
+      arrayFind(originalArray,function(element){
+        return element===2; 
+      });
+      eq(originalArray[0],1);
+      eq(originalArray[1],2);
+      eq(originalArray.length,2);
+    },
+    "It should work on the original array even if callback modifies its elements.":function(){
+      var originalArray=[1,2,3]; 
+      var findResult = arrayFind(originalArray,function(element,index,array){
+        array[1]=4; 
+        return element===2;
+      });
+      eq(findResult,2);
+    },
+    "It should work on the original array even if callback appends or removes elements.":function(){
+      var originalArray=[1,2,3]; 
+      var numberOfTimesCallbackHasRun=0; 
+      var findResult = arrayFind(originalArray,function(element,index,array){
+        numberOfTimesCallbackHasRun++;
+        if (index===0){
+          array.splice(1);
+        }
+        if (index===2){
+          array.push(4);
+        }
+        return element===2;
+      });
+      eq(findResult,2);
+      eq(numberOfTimesCallbackHasRun,2);
+    },
+
+  })
+
+</script>

@@ -1,0 +1,123 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The sort() method sorts the elements of an array in place and returns 
+  // the array. The default sort order is built upon converting the elements 
+  // into strings, then comparing their sequences of UTF-16 code units values.
+  // 
+  // The time and space complexity of the sort cannot be guaranteed as it is 
+  // implementation dependent."
+  //
+  // SIGNATURE: 
+  // arr.sort([compareFunction])
+  // >> sort(array[, compareFunction]);
+  //     >> compareFunction(firstEl,secondEl);   
+  //
+  // RETURN: 
+  // The sorted array. 
+  //
+  // DETAILS:
+  // >> compareFunction: specifies a function that defines sort order, takes 2 args 
+  //     >> firstEl: first element in comparison 
+  //     >> secondEl: second element in comparison 
+  // >> compareFunction returns a numerical value; based on this, elements are sorted 
+  //     >> if return < 0, firstEl comes before secondEl 
+  //     >> if return === 0, leave elements unchanged 
+  //     >> if return > 0, secondEl comes before firstEl 
+  // >> compareFunction must always return the same value for a given firstEl & secondEl 
+  // >> if compareFunction returns inconsistent values, sort order is undefined 
+  // >> compareFunction works with anonymous functions, or function expressions 
+  //
+  // >> if no compareFunction, array is sorted according to Unicode point value 
+  // >> objects in an array can be sorted by comparing values of same properties  
+  // >> elements of value undefined are automatically sorted right
+  // 
+
+  function arraySort(array,compareFunction){
+
+    if(!compareFunction){ // default to comparing UTF char code values 
+      var compareFunction = function(a,b){
+        var current = String(a).charCodeAt(); 
+        var next = String(b).charCodeAt(); 
+        return current-next; 
+      }; 
+    }
+
+    // Bubble Sort Algorithm, adapted from rajatk16/javascript-sort on github
+    var swapped = false; 
+    do{  
+      swapped=false; 
+      array.forEach(function(current,i){  
+        var next = array[i+1]; 
+        if(next!==undefined){ // if next is undefined, we want to do nothing, treat it as ∞
+          if(current===undefined || compareFunction(current,next)>0){ // if our compareFunction finds current > next, swap (auto swap if current === undefined)
+            var temp = current; 
+            array[i] = next; 
+            array[i+1] = temp; 
+            swapped=true; // say "yes we had to swap"
+          }
+        }
+      })
+    } while(swapped); // keep going as long as we had to swap at least once 
+
+    return array; 
+  };
+
+  tests({
+    "It should return the same array.":function(){
+      var testArray = [2,30,100,4];
+      var sortResult = arraySort(testArray); 
+      eq(sortResult,testArray);
+    },
+
+    "It should sort the array according to the UTF values of each element.":function(){
+      var testArray = [2,30,100,4];
+      var sortResult = arraySort(testArray); 
+      eq(sortResult[0],100);
+      eq(sortResult[1],2);
+      eq(sortResult[2],30);
+      eq(sortResult[3],4);
+    },
+
+    "It should accept an optional compareFunction as its 2nd arg, specifying comparison criteria.":function(){
+      var testArray = [2,30,100,4];
+      var testCompareFunction = function(a,b){return a-b};
+      var sortResult = arraySort(testArray,testCompareFunction); 
+      eq(sortResult[0],2);
+      eq(sortResult[1],4);
+      eq(sortResult[2],30);
+      eq(sortResult[3],100);
+    },
+    "It should accept anonymous functions, or function expressions, as a valid compareFunction.":function(){
+      var testArray = [2,30,100,4];
+      var sortResult = arraySort(testArray,function(a,b){return a-b;}); 
+      eq(sortResult[0],2);
+      eq(sortResult[1],4);
+      eq(sortResult[2],30);
+      eq(sortResult[3],100);
+    },
+
+    "It should sort all elements of value undefined to the end.":function(){
+      var testArray = [2,30,undefined,100,4];
+      var sortResult = arraySort(testArray,function(a,b){return a-b;}); 
+      eq(sortResult[0],2);
+      eq(sortResult[1],4);
+      eq(sortResult[2],30);
+      eq(sortResult[3],100);
+      eq(sortResult[4],undefined);
+    },
+    "The compareFunction should not run for elements of value undefined.":function(){
+      var testArray = [2,4,30,100,undefined];
+      var numberOfTimesCompareFunctionHasRun=0; 
+      var sortResult = arraySort(testArray,function(a,b){
+        numberOfTimesCompareFunctionHasRun++; 
+        return a-b;
+      }); 
+      eq(numberOfTimesCompareFunctionHasRun,3);
+    },
+  })
+
+</script>

@@ -1,0 +1,189 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The reduceRight() method applies a function against an accumulator and 
+  // each value of the array (from right-to-left) to reduce it to a single value."
+  // 
+  // Basically this is reduce, but it starts at the end of the array, and works 
+  // toward the left instead of the right. 
+  //
+  // SIGNATURE: 
+  // arr.reduceRight(callback[, initialValue]) 
+  // >> callback(accumulator,currentValue[,index, array])
+  // 
+  // RETURN: 
+  // Single value from reduction, from right to left. 
+  // 
+  // DETAILS: 
+  // >> Runs callback once per element 
+  // >> Skips holes 
+  // >> Reduces array to one value 
+  //
+  // >> IF initialValue is provided: 
+  //       accumulator = initialValue
+  //       currentValue = last value in array
+  //       i = last index in array
+  // >> IF !initialValue: 
+  //       accumulator = last value in array 
+  //       currentValue = second to last value in array
+  //       i = 2nd to last index in array 
+  //
+  // >> IF !initalValue && array has 1 element:
+  //       return single element 
+  //       don't run callback 
+  // >> IF initialValue && array is empty: 
+  //       return initialValue 
+  //       don't run callback 
+  // >> IF !initialValue && array is empty: 
+  //       throw TypeError
+  // 
+
+function arrayReduceRight(array, callback, initialValue){
+  var arrayIndexes = Object.keys(array); // save the indexes of array in a variable 
+  var startingIndex = arrayIndexes[arrayIndexes.length-1]; // startingIndex equals the final valid index of array 
+  var resultSoFar = initialValue;  
+
+  if (arguments.length<3){ // no initialValue provided 
+
+    if(arrayIndexes.length===0){ // if array is empty & no initialValue, throw TypeError
+      throw new TypeError("Reduce of empty array with no initial value.");
+    }
+    if(arrayIndexes.length===1){ // if array has 1 element & no initialValue, return single element
+      return array[startingIndex]; 
+    }
+
+  resultSoFar = array[startingIndex]; // change resultSoFar from non-existent initialValue to rightmost/final element of array
+  startingIndex--; // move the startingIndex to the left by one 
+
+  }
+  else { // initialValue is provided 
+    if(arrayIndexes.length===0){ //if array is empty & initialValue, return initialValue 
+      return initialValue;
+    }
+  }
+
+  for(var i=startingIndex;i>-1;i--){ // iterate from right to left, by decrementing i until it hits 0 
+    if (i in array){ // make sure i is a valid index for array; if not, skip it
+      resultSoFar = callback(resultSoFar,array[i],i,array);
+    }
+  }
+
+  return resultSoFar;
+}
+
+// Overlaps with Array.reduce quite a lot, so material is borrowed from that. 
+
+// Choosing to use strings instead of numbers so that backwards concatenation/adding is obvious.  
+// That is, if you reduce left, you get "hey" and if you reduce right you get "yeh"
+// If you do this with [1,2,3] you get 6 from both reduce and reduceRight
+
+tests({
+
+'If initialValue exists, callback should run array.length number of times.':function(){
+  var numberOfTimesCallbackHasRun = 0; 
+  arrayReduceRight(["h","e","y"],function(){
+    numberOfTimesCallbackHasRun++; 
+  }, "a"); 
+  eq(numberOfTimesCallbackHasRun,3); 
+},
+'If no initialValue, callback should run array.length-1 number of times.':function(){
+  var numberOfTimesCallbackHasRun = 0; 
+  arrayReduceRight(["h","e","y"],function(){
+    numberOfTimesCallbackHasRun++; 
+  });  
+  eq(numberOfTimesCallbackHasRun,2); 
+}, 
+
+'If initialValue exists, resultSoFar should start as initialValue.':function(){
+  arrayReduceRight(["h"],function(resultSoFar){
+    eq(resultSoFar,"a"); 
+  }, "a"); 
+}, 
+'If initialValue exists, currentValue should start as last element of array.':function(){
+  arrayReduceRight(["h"],function(resultSoFar,currentValue){
+    eq(currentValue,"h");
+  }, "a"); 
+}, 
+'If initialValue exists, callback should start at last index.':function(){
+  arrayReduceRight(["h"],function(resultSoFar,currentValue,currentIndex){
+    eq(currentIndex,0); 
+  }, "a"); 
+}, 
+
+'If no initialValue, resultSoFar should start as the last array element.':function(){
+  arrayReduceRight(["h","e"],function(resultSoFar){
+    eq(resultSoFar,"e");
+  }); 
+}, 
+'If no initialValue, currentValue should start as second to last array element':function(){
+  arrayReduceRight(["h","e"],function(resultSoFar,currentValue){
+    eq(currentValue,"h");
+  }); 
+}, 
+'If no initialValue, callback should start at second to last index.':function(){
+  arrayReduceRight(["h","e"],function(resultSoFar,currentValue,currentIndex){
+    eq(currentIndex,0); 
+  }); 
+}, 
+
+'If initialValue exists and array is empty, it should return the initialValue without running the callback.':function(){
+  var callbackTest = false; 
+  var initialValue = "a"; 
+  var reduceRightResult = arrayReduceRight([,,],function(){
+    callbackTest = true; 
+  },initialValue); 
+  eq(reduceRightResult,"a"); 
+  eq(callbackTest, false); 
+}, 
+'If no initialValue and array has only one element, it should return the single element without running the callback.':function(){ 
+  var callbackTest = false;
+  var reduceRightResult = arrayReduceRight(["h"],function(){
+    callbackTest = true;
+  }); 
+  eq(reduceRightResult,"h"); 
+  eq(callbackTest, false); 
+}, 
+
+'If initialValue exists, it should ignore holes.':function(){
+  var reduceRightResult = arrayReduceRight([,"h","e","y"],function(a,b){
+    return a+b;
+  },"a"); 
+  eq(reduceRightResult,"ayeh"); 
+}, 
+'If no initialValue, it should also ignore holes.':function(){
+  var reduceRightResult = arrayReduceRight([,"h","e","y"],function(a,b){
+    return a+b;
+  }); 
+  eq(reduceRightResult,"yeh"); 
+}, 
+
+'It should actually reduce, i.e. turn the array into one value.':function(){
+  var reduceRightResult = arrayReduceRight(["h","e","y"],function(a,b){
+    return a+b;
+  },"a"); 
+  eq(reduceRightResult,"ayeh"); 
+  eq([].push(reduceRightResult),1); 
+}, 
+'If no initialValue and array is empty, it should throw TypeError.':function(){
+  var isTypeError = false; 
+  try{
+    arrayReduceRight([],function(){});  
+  } 
+  catch(e) { 
+    isTypeError = (e instanceof TypeError, true); 
+  } 
+  eq(isTypeError,true); 
+}, 
+'It should pass the original array as fourth argument to callback.':function(){
+  testArray = ["h"]; 
+  arrayReduceRight(testArray,function(resultSoFar, currentValue, currentIndex, array){
+    eq(testArray,array); 
+  })
+},
+
+});
+
+</script>

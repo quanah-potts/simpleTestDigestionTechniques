@@ -1,0 +1,95 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The indexOf() method returns the first index at which a given element
+  // can be found in the array, or -1 if it is not present."
+  // 
+  // SIGNATURE: 
+  // arr.indexOf(searchElement[, fromIndex])
+  // >> indexOf(array, searchElement[, fromIndex])
+  // 
+  // RETURN: 
+  // >> 1st index of searchElement; -1 if not found; -1 if no searchElement, or array
+  // 
+  // DETAILS: 
+  // >> fromIndex >> index to start search at. 
+  // >> If fromIndex >= array.length, return -1 (array is not searched)
+  // >> If fromIndex < 0, fromIndex = array.length + fromIndex (offset from end of array)
+  // >> If fromIndex === 0, search whole array (0 is default)
+  //
+  // >> Compares searchElement to array elements with strict equality, === 
+  //
+  //
+  //
+
+  function arrayIndexOf(array, searchElement, fromIndex){
+
+    if(!array || !searchElement){
+      return -1; 
+    }
+
+    var startingIndex=0; 
+
+    if(arguments.length>2){ //checking if fromIndex is provided 
+      if(fromIndex >= array.length){
+        return -1; 
+      }
+      if(fromIndex < 0){
+        startingIndex=array.length+fromIndex; 
+      }
+      else{
+        startingIndex=fromIndex; 
+      }
+    }
+    
+    for(var i=startingIndex; i<array.length; i++){ // comparing each array element to searchElement
+      if(array[i]===searchElement){
+        return i; 
+      }
+    }
+
+    return -1; 
+  }; 
+
+  tests({
+
+    "It should return the first index in the array where an array element strictly equals searchElement.":function(){
+      var testObject = {description: "test object"}; 
+      var testSearchElement = testObject;  
+      var indexOfResult = arrayIndexOf([{description: "test object"},testObject, testObject], testSearchElement); 
+      eq(indexOfResult,1);
+    },
+    "It should return -1 if no array elements strictly equals searchElement.":function(){
+      var testObject = {description: "test object"}; 
+      var indexOfResult = arrayIndexOf([testObject], {description: "test object"}); 
+      eq(indexOfResult,-1);
+    },
+    "It should return -1 if no searchElement or array is provided.":function(){
+      var indexOfResult = arrayIndexOf([1]); 
+      eq(indexOfResult,-1);
+      var indexOfResult = arrayIndexOf(); 
+      eq(indexOfResult,-1);
+    },
+
+    "It should accept an optional third argument, fromIndex, to designate where the search should start.":function(){
+      var indexOfResult = arrayIndexOf(["a","b","a"],"a",1);
+      eq(indexOfResult,2);
+    },
+    "If fromIndex is not provided, it should start at index 0.":function(){
+      var indexOfResult = arrayIndexOf(["a","b","a"],"a");
+      eq(indexOfResult,0);
+    }, 
+    "If fromIndex is greater than or equal to array.length, it should return -1.":function(){
+      var indexOfResult = arrayIndexOf(["a","b","a"],"a",3);
+      eq(indexOfResult,-1);
+    },
+    "If fromIndex is negative, it should start at an index equal to array.length + fromIndex.":function(){
+      var indexOfResult = arrayIndexOf(["a","b","a"],"a",-2); 
+      eq(indexOfResult,2);
+    }
+  })
+
+</script>

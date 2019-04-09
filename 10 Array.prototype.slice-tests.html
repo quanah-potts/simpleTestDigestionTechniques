@@ -1,0 +1,151 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The slice method returns a shallow copy of a portion of an array into a new
+  // array object selected from begin to end (end not included). The original array
+  // will not be modified."
+  //
+  // SIGNATURE: 
+  // arr.slice([begin[,end]]);
+  // >> slice(array[, begin[, end]]); 
+  //
+  // RETURN: 
+  // New array containing extracted elements, within range of begin to end 
+  //
+  // DETAILS:
+  // >> BEGIN: index at which to begin extraction 
+  // >> defaults to 0 
+  // >> IF begin > array.length, return empty array 
+  // >> IF begin < 0, re-calculate begin as array.length + begin 
+  //
+  // >> END: index to end extraction at 
+  // >> the element at index end is excluded 
+  // >> defaults to array.length 
+  // >> IF end > array.length, end equals default 
+  // >> IF end < 0, re-calculate end as array.length + end 
+  //
+  // >> Does not alter original array 
+  // >> Returns shallow copy of elements from array 
+  // >> Retains object references 
+  // 
+
+  function arraySlice(array,begin,end){
+    var slicedArray = []; 
+    if(!array || array.length===0){
+      return slicedArray; 
+    }
+
+    var startingIndex = 0; 
+    var endingIndex = array.length; 
+
+    if (arguments.length>1){ // check if begin is provided 
+      if(begin>array.length){
+        return slicedArray; 
+      }
+      if(begin<0){
+        startingIndex = begin + array.length; 
+      }
+      else{
+        startingIndex = begin;
+      }
+
+      if (arguments.length>2){ // now check if end is provided 
+        if(end<0){
+          endingIndex = end + array.length; 
+        }
+        else if(end<array.length){  
+          endingIndex = end;
+        }
+      }
+    }
+
+    for (var i=startingIndex;i<endingIndex;i++){
+      slicedArray.push(array[i]);
+    }
+
+    return slicedArray; 
+  }
+
+  tests({
+    "It should return a new array, different from its first argument.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray); 
+      eq(testArray !== newArray, true); 
+    },
+    "It should return a new array whose elements are made up of the elements in its first argument.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray); 
+      eq(newArray[1],2); 
+      eq(newArray.length,3);
+    },
+    "Any changes to the new array should not affect the original array.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray); 
+      newArray.push(4);
+      eq(testArray[3],undefined);
+      eq(newArray[3],4);
+    },
+    "If no array or array of length 0 is provided as arg, it should return an empty array.":function(){
+      var testArray = []; 
+      var newArray1 = arraySlice(testArray); 
+      var newArray2 = arraySlice(); 
+      eq(newArray1.length,newArray2.length,0); 
+     },
+
+    "It should accept an optional 'begin' index as its 2nd argument, specifying where to start extraction.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray,1); 
+      eq(newArray[0],2); 
+      eq(newArray.length,2); 
+    },
+    "If begin is greater than array.length, it should return an empty array.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray,4); 
+      eq(newArray.length,0); 
+     },
+    "If begin is negative, it should be recalculated to equal array.length+begin.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray,-2); 
+      eq(newArray[0],2); 
+      eq(newArray.length,2); 
+    },  
+
+    "It should accept an optional 'end' index as its 3rd argument, specifying 1 place after where to end extraction.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray,0,2); 
+      eq(newArray[1],2); 
+      eq(newArray.length,2); 
+    },
+    "If end is greter than array.length, it should be recalculated to equal array.length.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray,0,4); 
+      eq(newArray[1],2); 
+      eq(newArray.length,3); 
+    },
+    "If end is negative, it should be recalculated to equal array.length+end.":function(){
+      var testArray = [1,2,3]; 
+      var newArray = arraySlice(testArray,0,-1); 
+      eq(newArray[1],2); 
+      eq(newArray.length,2); 
+    },
+
+    "It should not change the array passed as an argument.":function(){
+      var testArray = [1,2,3]; 
+      arraySlice(testArray); 
+      eq(testArray[2],3); 
+      eq(testArray[3],undefined); 
+      eq(testArray.length===3, true);
+    }, 
+    "It should copy object references into the new return array.":function(){
+      var testObject = {description:"I am a test object"}; 
+      var testArray = [testObject]; 
+      var newArray = arraySlice(testArray); 
+      eq(newArray[0].description,"I am a test object"); 
+      eq(newArray[0], testObject);
+    },
+  })
+
+</script>

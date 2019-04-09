@@ -1,0 +1,130 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The unshift() method adds one or more elements to the beginning 
+  // of an array and returns the new length of the array."
+  //
+  // SIGNATURE: 
+  // arr.unshift(element1[, ...[, elementN]]);
+  // >> unshift(array,element1[, ...[, elementN]]);
+  //
+  // RETURN: 
+  // New length property of array 
+  //
+  // DETAILS:
+  // >> Inserts values given to the beginning of array 
+  // >> Takes any number of elements  
+  // >> Returns new length of array  
+  // >> Works on array-like objects
+  // >> Multiple elements are inserted at once in the order they're passed as args 
+  //
+
+  // ok so basic strategy is: 
+  // 1: shift everything to the right to make room on the left 
+  // 2: shift right according to # of arguments given 
+  // 3: set each leftmost index according to values of arguments given 
+
+  function arrayUnshift(array){
+    array.length = Number(array.length); // convert length to number 
+    array.length = Math.floor(array.length); // just get the integer part
+    if (!array.length || Number.isNaN(array.length) || array.length < 0 ){ // check if array.length doesn't exist, isn't a valid number, or is negative  
+      array.length = 0; // if no valid array.length, set it to 0 
+    }
+
+    var numberOfNewElements = arguments.length-1; // offset by -1 to account for array arg at arguments[0]
+    var lastIndex = array.length-1; 
+    for (var i = lastIndex+numberOfNewElements; i>-1; i--){
+      if(i>=numberOfNewElements){ // shifting already present elements to the right 
+        array[i] = array[i-numberOfNewElements]; 
+      }
+      else{ // placing values passed as args into the array 
+        array[i] = arguments[i+1]; // offset by +1 to skip array arg at arguments[0]
+      }
+    }
+    if(!Array.isArray(array)){
+      array.length += numberOfNewElements; 
+    }
+    return array.length; 
+  }; 
+
+  tests({
+    "It should insert a given value at the beginning of the array.":function(){
+      var testArray = [1,2,3]; 
+      arrayUnshift(testArray,0);
+      eq(testArray[0],0);
+    },
+    "It should insert multiple given values at the beginning of the array from left to right in order.":function(){
+      var testArray = [1,2,3]; 
+      arrayUnshift(testArray,-1,0);
+      eq(testArray[0],-1);
+      eq(testArray[1],0);
+    }, 
+    "It should push already present values to the right.":function(){
+      var testArray = [1,2,3]; 
+      arrayUnshift(testArray,0);
+      eq(testArray[1],1);
+      eq(testArray[2],2);
+      eq(testArray[3],3);
+    },
+    "It should return the new length of the array.":function(){
+      var testArray = [1,2,3]; 
+      var unshiftResult = arrayUnshift(testArray,0);
+      eq(unshiftResult,4);
+    },
+
+    "It should work on an array-like object.":function(){
+      var testArrayLikeObject = { 
+        length: 3, 
+        0:1,
+        1:2,
+        2:3
+      }
+      var unshiftResult = arrayUnshift(testArrayLikeObject,0);
+      eq(testArrayLikeObject[0],0); 
+      eq(testArrayLikeObject[3],3); 
+    },
+    "It should increase the array-like object's length by the number of new values added to the array.":function(){
+      var testArrayLikeObject = { 
+        length: 3, 
+        0:1,
+        1:2,
+        2:3
+      }
+      var unshiftResult = arrayUnshift(testArrayLikeObject,-1,0);
+      eq(testArrayLikeObject[0],-1); 
+      eq(testArrayLikeObject[4],3); 
+      eq(testArrayLikeObject.length,5);
+    },
+
+    "If the object passed as 1st arg has no length property, one should be made for it, defaulting to 0.":function(){
+      var testArrayLikeObject = {};
+      arrayUnshift(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,0); 
+    }, 
+    "If a length property is negative or not convertable to a number, it should default to 0.":function(){
+      var testArrayLikeObject = {
+        length:-1
+      }; 
+      var testArrayLikeObject2 = {
+        length:'notConvertable'
+      }; 
+      arrayUnshift(testArrayLikeObject); 
+      arrayUnshift(testArrayLikeObject2); 
+      eq(testArrayLikeObject.length,testArrayLikeObject2.length,0);
+    }, 
+    "If a length property is a decimal number, it should be converted to the whole number portion.":function(){
+      var testArrayLikeObject = {
+        length:2.9,
+        0:1,
+        1:2
+      }; 
+      arrayUnshift(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,2); 
+    }
+    
+  })
+
+</script>

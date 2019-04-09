@@ -1,0 +1,121 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The pop() method removes the last element from an array and returns
+  // that element. This method changes the length of the array."
+  //
+  // SIGNATURE: 
+  // arr.pop(); 
+  // >> pop(array); 
+  //
+  // RETURN: 
+  // The removed element; 
+  // Undefined if array is empty 
+  //
+  // DETAILS:
+  // >> Removes last element from array 
+  // >> Returns last element 
+  // >> Returns undefined on empty array 
+  // >> Reduces array.length by 1 
+  // >> Works on array-like objects 
+  // >> May not behave meaningfully for objects with invalid or 0 length properties 
+  //
+
+  function arrayPop(array){
+    array.length = Number(array.length); // convert length to number 
+    array.length = Math.floor(array.length); // just get the integer part
+    if (!array.length || Number.isNaN(array.length) || array.length < 0 ){ // check if array.length doesn't exist, isn't a valid number, or is negative  
+      array.length = 0; // if no valid array.length, set it to 0 
+    }
+
+    if(array.length===0){ // works on empty arrays only, NOT arrays w/ unassigned values like [,,,]
+      return undefined; 
+    }
+    var lastIndex = array.length-1; 
+    var lastElement = array[lastIndex]; 
+    array.length-=1; // this also automatically deletes the last element from arrays
+
+    if(!Array.isArray(array)){ // manually delete the last element from array-like objects
+      delete array[lastIndex]; 
+    }
+
+    return lastElement;
+  }
+
+  // Some behavior overlaps with push (namely, setting length properties for array-like objects) 
+  // some material borrowed 
+
+  tests({
+    "It should remove the last element from the given array.":function(){
+      var testArray = [1,2]; 
+      arrayPop(testArray); 
+      eq(testArray[1],undefined); 
+      eq(testArray[0],1);
+      eq(testArray.length,1); 
+    },
+    "It should return the last element of the array.":function(){
+      var testArray = [1,2]; 
+      var popResult = arrayPop(testArray); 
+      eq(popResult,2); 
+    },
+    "If used on an empty array, it should return undefined.":function(){
+      var testArray=[]; 
+      var popResult = arrayPop(testArray); 
+      eq(popResult,undefined); 
+    },
+
+    "It should work on array-like objects.":function(){
+      var testArrayLikeObject = {
+        length: 2, 
+        0: 1, 
+        1: 2,
+      };
+
+      var popResult = arrayPop(testArrayLikeObject); 
+      eq(popResult,2); 
+      eq(testArrayLikeObject[1],undefined);
+    },
+    "It should decrease the array or array-like object's length by 1.":function(){
+      var testArrayLikeObject = {
+        length: 2, 
+        0: 1, 
+        1: 2,
+      };
+
+      arrayPop(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,1); 
+    },
+
+    "If the object passed as 1st arg has no length property, one should be made for it, defaulting to 0.":function(){
+      var testArrayLikeObject = {};
+      arrayPop(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,0); 
+    }, 
+    "If a length property is negative or not convertable to a number, it should default to 0.":function(){
+      var testArrayLikeObject = {
+        length:-1
+      }; 
+      var testArrayLikeObject2 = {
+        length:'notConvertable'
+      }; 
+      arrayPop(testArrayLikeObject); 
+      arrayPop(testArrayLikeObject2); 
+      eq(testArrayLikeObject.length,testArrayLikeObject2.length,0);
+    }, 
+    "If a length property is a decimal number, it should be converted to the whole number portion.":function(){
+      var testArrayLikeObject = {
+        length:2.9,
+        0:1,
+        1:2
+      }; 
+      var popResult = arrayPop(testArrayLikeObject); 
+      eq(popResult,2);
+      eq(testArrayLikeObject.length,1); 
+    }
+
+  })
+
+</script>

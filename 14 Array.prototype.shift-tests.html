@@ -1,0 +1,128 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // The shift() method removes the first element from an array and 
+  // returns that element. This method changes the length of the array.
+  //
+  // SIGNATURE: 
+  // arr.shift();
+  // >> shift(array); 
+  //
+  // RETURN: 
+  // The removed element 
+  // Undefined if array is empty. 
+  //
+  // DETAILS:
+  // >> Removes first element from array 
+  // >> Returns first element 
+  // >> Returns undefined on empty array 
+  // >> Reduces array.length by 1 
+  // >> Works on array-like objects 
+  // >> May not behave meaningfully for objects with invalid or 0 length properties 
+  //
+
+  // Lots of overlap with pop, material borrowed 
+
+  function arrayShift(array){
+    array.length = Number(array.length); // convert length to number 
+    array.length = Math.floor(array.length); // just get the integer part
+    if (!array.length || Number.isNaN(array.length) || array.length < 0 ){ // check if array.length doesn't exist, isn't a valid number, or is negative  
+      array.length = 0; // if no valid array.length, set it to 0 
+    }
+
+    if(array.length===0){
+      return undefined; 
+    }
+
+    var firstElement = array[0];
+
+    for(var i=0;i<array.length; i++){ // this for loop "shifts" all elements to the left by 1
+      array[i]=array[i+1]; 
+    }
+
+    if(!Array.isArray(array)){ // deletes undefined last value for array-like objects
+      delete array[array.length-1]; 
+    }
+    array.length-=1; // deletes now undefined last value for arrays
+
+    return firstElement; 
+  }
+
+  tests({
+    "It should remove the first element from the given array.":function(){
+      var testArray = [1,2]; 
+      arrayShift(testArray); 
+      eq(testArray[1],undefined); 
+      eq(testArray[0],2);
+      eq(testArray.length,1); 
+    },
+    "It should return the first element of the array.":function(){
+      var testArray = [1,2]; 
+      var shiftResult = arrayShift(testArray); 
+      eq(shiftResult,1); 
+    },
+    "If used on an empty array, it should return undefined.":function(){
+      var testArray=[]; 
+      var shiftResult = arrayShift(testArray); 
+      eq(shiftResult,undefined); 
+    },
+
+    "It should work on array-like objects.":function(){
+      var testArrayLikeObject = {
+        length: 3, 
+        0: 1, 
+        1: 2,
+        2: 3, 
+      };
+
+      var shiftResult = arrayShift(testArrayLikeObject); 
+      eq(shiftResult,1); 
+      eq(testArrayLikeObject[0],2);
+      eq(testArrayLikeObject[1],3);
+      eq(testArrayLikeObject[2],undefined);
+    },
+    "It should decrease the array or array-like object's length by 1.":function(){
+      var testArrayLikeObject = {
+        length: 3, 
+        0: 1, 
+        1: 2,
+        2: 3, 
+      };
+
+      arrayShift(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,2); 
+    },
+
+    "If the object passed as 1st arg has no length property, one should be made for it, defaulting to 0.":function(){
+      var testArrayLikeObject = {};
+      arrayShift(testArrayLikeObject); 
+      eq(testArrayLikeObject.length,0); 
+    }, 
+    "If a length property is negative or not convertable to a number, it should default to 0.":function(){
+      var testArrayLikeObject = {
+        length:-1
+      }; 
+      var testArrayLikeObject2 = {
+        length:'notConvertable'
+      }; 
+      arrayShift(testArrayLikeObject); 
+      arrayShift(testArrayLikeObject2); 
+      eq(testArrayLikeObject.length,testArrayLikeObject2.length,0);
+    }, 
+    "If a length property is a decimal number, it should be converted to the whole number portion.":function(){
+      var testArrayLikeObject = {
+        length:2.9,
+        0:1,
+        1:2
+      }; 
+      var shiftResult = arrayShift(testArrayLikeObject); 
+      eq(shiftResult,1);
+      eq(testArrayLikeObject.length,1); 
+    }
+
+  })
+
+</script>

@@ -1,0 +1,111 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The join() method creates and returns a new string by concatenating all of the 
+  // elements in an array (or an array-like object), separated by commas or a specified 
+  // separator string. If the array has only one item, then that item will be returned 
+  // without using the separator."
+  //
+  // SIGNATURE: 
+  // arr.join([separator]);  
+  // >> join(array[, separator]); 
+  //
+  // RETURN: 
+  // A string with all array elements joined; 
+  // the empty string if array.length === 0 
+  //
+  // DETAILS:
+  // >> SEPARATOR: specifies a string to separate adjacent array elements 
+  // >> converted to a string if necessary 
+  // >> defaults to ","
+  // >> if separator is empty string, all elements join with no spaces between 
+  //
+  // >> Works on array-like objects 
+  // >> Array elements that are undefined or null are converted to empty string 
+  //
+
+  function arrayJoin(array,separator){
+    var joinedString = "";
+    var separatorString = ',';
+    
+    if(arguments.length>1){ // check if separator is provided 
+      if (typeof separator !== 'string'){
+        separatorString = String(separator);
+      }
+      separatorString = separator;
+    }
+
+    for (var i=0;i<array.length;i++){
+      if(array[i] !== undefined && array[i] !== null){ // make sure element is not undefined & null 
+        joinedString+=array[i];      
+      }
+      if(i !== array.length-1){ // as long as we're not at the end, add separator
+        joinedString+=separatorString;
+      }
+    }
+
+    return joinedString; 
+  }; 
+
+  // probably use String() or toString()
+
+  tests({
+    "It should return a new string consisting of the array's concatenated elements, with ',' in between.":function(){
+      var testArray = ["h","e","y"]; 
+      var joinResult = arrayJoin(testArray); 
+      eq(joinResult,"h,e,y"); 
+    },
+    "If the array has only one element, it should return that single element.":function(){
+      var testArray = ["h"];
+      var joinResult = arrayJoin(testArray); 
+      eq(joinResult,"h"); 
+    },
+    "If array.length is 0, it should return the empty string.":function(){
+      var testArray = [];
+      var joinResult = arrayJoin(testArray); 
+      eq(joinResult,""); 
+    }, 
+
+    "It should accept an optional separator string as its 2nd arg, to be placed between elements in the return string instead of the default ','.":function(){
+      var testArray = ["h","e","y"];
+      var joinResult = arrayJoin(testArray,"-"); 
+      eq(joinResult,"h-e-y"); 
+    },
+    "If separator is empty string, returned concatenated string should have no spaces between elements.":function(){
+      var testArray = ["h","e","y"];
+      var joinResult = arrayJoin(testArray,""); 
+      eq(joinResult,"hey"); 
+    },
+    "If separator is not a string, it should be converted to a string if possible.":function(){
+      var testArray = ["h","e","y"];
+      var joinResult = arrayJoin(testArray,1); 
+      eq(joinResult,"h1e1y"); 
+    },
+
+    "It should treat array elements with a value of undefined or null as the empty string.":function(){
+      var testArray = ["h","e",undefined,"y",null];
+      var joinResult = arrayJoin(testArray,""); 
+      eq(joinResult,"hey"); 
+    },
+    "It should convert non-string array elements into strings wherever possible.":function(){
+      var testArray = ["h",1];
+      var joinResult = arrayJoin(testArray,""); 
+      eq(joinResult,"h1"); 
+    },
+
+    "It should work on array-like objects.":function(){
+      var testArrayLikeObject = {
+        length: 3, 
+        0: "h", 
+        1: "e",
+        2: "y"
+      };
+      var joinResult = arrayJoin(testArrayLikeObject,""); 
+      eq(joinResult,"hey"); 
+    },
+  })
+
+</script>

@@ -1,0 +1,104 @@
+<script src="../simpletest.js"></script>
+
+<script>
+
+  //
+  // SUMMARY:
+  // "The lastIndexOf() method returns the last index at which a given element
+  // can be found in the array, or -1 if it is not present. The array is searched
+  // backwards, starting at fromIndex." 
+  // 
+  // SIGNATURE: 
+  // arr.lastIndexOf(searchElement[, fromIndex])
+  // >> lastIndexOf(array, searchElement[, fromIndex])
+  // 
+  // RETURN: 
+  // >> last index of searchElement; -1 if not found; -1 if no searchElement, or array
+  // 
+  // DETAILS: 
+  // >> Searches from "back to front", from end of array to its beginning  
+  //
+  // >> fromIndex >> index to start search at, default is array.length-1. 
+  // >> If fromIndex >= array.length, search whole array; basically, don't change default. 
+  // >> If fromIndex < 0, startingIndex = array.length + fromIndex (offset from end of array)
+  // >> If this calculated startingIndex is still negative, return -1 (array is not searched)
+  //
+  // >> Compares searchElement to array elements with strict equality, === 
+  //
+  //
+
+  function arraylastIndexOf(array, searchElement, fromIndex){
+
+    if(!array || !searchElement){
+      return -1; 
+    }
+
+    var startingIndex=array.length-1; 
+
+    if(arguments.length>2){ //checking if fromIndex is provided 
+      if(fromIndex < array.length){ // only change from default full search if it is less than array.length
+        startingIndex = fromIndex; 
+      }
+      if(fromIndex < 0){ 
+        startingIndex=array.length+fromIndex; 
+        if(startingIndex<0){
+          return -1; 
+        }
+      }
+    }
+    
+    for(var i=startingIndex; i>-1; i--){ // comparing each array element to searchElement, from right to left
+      if(array[i]===searchElement){
+        return i; 
+      }
+    }
+
+    return -1; 
+  }; 
+
+  // Similar to indexOf, so material overlaps 
+
+  tests({
+
+    "It should return the last index in the array where an array element strictly equals searchElement.":function(){
+      var testObject = {description: "test object"}; 
+      var testSearchElement = testObject;  
+      var lastIndexOfResult = arraylastIndexOf([{description: "test object"},testObject, testObject], testSearchElement); 
+      eq(lastIndexOfResult,2);
+    },
+    "It should return -1 if no array elements strictly equals searchElement.":function(){
+      var testObject = {description: "test object"}; 
+      var lastIndexOfResult = arraylastIndexOf([testObject], {description: "test object"}); 
+      eq(lastIndexOfResult,-1);
+    },
+    "It should return -1 if no searchElement or array is provided.":function(){
+      var lastIndexOfResult = arraylastIndexOf([1]); 
+      eq(lastIndexOfResult,-1);
+      var lastIndexOfResult = arraylastIndexOf(); 
+      eq(lastIndexOfResult,-1);
+    },
+
+    "It should accept an optional third argument, fromIndex, to designate where the search should start.":function(){
+      var lastIndexOfResult = arraylastIndexOf(["a","b","a"],"a",1);
+      eq(lastIndexOfResult,0);
+    },
+    "If fromIndex is not provided, it should start at array.length-1, i.e. the last index.":function(){
+      var lastIndexOfResult = arraylastIndexOf(["a","b","a"],"a");
+      eq(lastIndexOfResult,2);
+    }, 
+    "If fromIndex is greater than or equal to array.length, it should start at the last index.":function(){
+      var lastIndexOfResult = arraylastIndexOf(["a","b","a"],"a",3);
+      eq(lastIndexOfResult,2);
+    }, 
+    "If fromIndex is negative, it should recalculate a startingIndex equal to array.length + fromIndex.":function(){
+      var lastIndexOfResult = arraylastIndexOf(["a","b","a"],"a",-2); 
+      eq(lastIndexOfResult,0);
+    }, 
+    "If startingIndex is still negative after recalculation, it should return -1":function(){
+      var lastIndexOfResult = arraylastIndexOf(["a","b","a"],"a",-4); 
+      eq(lastIndexOfResult,-1);
+    }, 
+
+  })
+
+</script>
